@@ -3,7 +3,7 @@
 *	Copyright 2020
 *
 *	Author: 			Ugur Buyukdurak
-*	Description: 		Simple Chatroom written in C++
+*	Description: 			Simple Chatroom written in C++
 *	Version:			1.0
 *
 */
