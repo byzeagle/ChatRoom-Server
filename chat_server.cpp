@@ -19,7 +19,6 @@
 *	Author: Ugur Buyukdurak
 *	Date: 23/06/2020
 *		
-* 
 */
 
 constexpr int PORT = 8080;
@@ -33,12 +32,10 @@ struct Client {
 	int userid;
 	std::string name;
 
-	// Needed for removal
 	bool operator == (const Client & cli){
 		return this->userid == cli.userid ? true : false;
 	}
 
-	// Needed
 	bool operator != (const Client & cli) const{
 		return this->userid != cli.userid ? true : false;
 	}
@@ -119,6 +116,7 @@ void send_message_to_others(const string & message, const Client & client){
 	mtx.unlock();
 }
 
+// Send message to the client
 void send_message_to_self(const string & message, const Client client){
 	if (write(client.connfd, message.c_str(), strlen(message.c_str())) < 0) {
         perror("Self message failed");
@@ -126,6 +124,7 @@ void send_message_to_self(const string & message, const Client client){
     }
 }
 
+// Return list of clients logged in to the system
 void send_list_of_clients(const Client & client){
 	mtx.lock();
 	for(const auto & cli : clients){
@@ -134,6 +133,7 @@ void send_list_of_clients(const Client & client){
 	mtx.unlock();
 }
 
+// Send message to a specific client
 void send_to_specific_client(const string & message, int userid){
 	mtx.lock();
 	for(const auto & cli : clients){
