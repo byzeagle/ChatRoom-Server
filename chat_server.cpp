@@ -1,3 +1,13 @@
+
+/*
+*	Copyright 2020
+*
+*	Author: 			Ugur Buyukdurak
+*	Description: 		Simple Chatroom written in C++
+*	Version:			1.0
+*
+*/
+
 #include <iostream>
 #include <cstdlib>
 #include <cstring>
@@ -13,13 +23,6 @@
 #include <mutex>
 
 #include <boost/tokenizer.hpp>
-
-/*
-*
-*	Author: Ugur Buyukdurak
-*	Date: 23/06/2020
-*		
-*/
 
 constexpr int PORT = 8080;
 constexpr int BACKLOG = 10;
