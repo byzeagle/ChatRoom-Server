@@ -12,3 +12,4 @@ Then run the executable.
 * Muliple clients
 * Name, rename users
 * Private messages
+* Has no encryption
