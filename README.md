@@ -4,7 +4,7 @@ Simple chatroom written in C++. It has no clients but linux telnet clients work 
 
 ## Build
 
-Just run make `make`
+Just run `make`
 
 Then run the executable.
 
