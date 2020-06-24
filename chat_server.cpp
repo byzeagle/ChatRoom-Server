@@ -21,8 +21,7 @@
 #include <atomic>
 #include <algorithm>
 #include <mutex>
-
-#include <boost/tokenizer.hpp>
+#include <regex>
 
 constexpr int PORT = 8080;
 constexpr int BACKLOG = 10;
@@ -188,39 +187,41 @@ void handle_client(Client client){
 				send_message_to_self("<< pong\r\n", client);
 			}
 			else if (incoming_message.find("/nick") != std::string::npos){
-				using namespace boost;
-				tokenizer<>tok(incoming_message);
-				auto beg = tok.begin();
-				client.name = *(++beg);
-				auto pos = std::find(clients.begin(), clients.end(), client);
-				(*pos).name = client.name;
+				regex reg("\\s+");
+				sregex_token_iterator iter(incoming_message.begin(), incoming_message.end(), reg, -1);
+    			sregex_token_iterator end;
+    			vector<string> list(iter, end);
+    			client.name = list[1];
+
+    			auto pos = std::find(clients.begin(), clients.end(), client);
+    			(*pos).name = client.name;
 
 				broadcast_message("<< " + std::to_string((*pos).userid) + " is known as " + (*pos).name + "\r\n");
 			}
 			else if (incoming_message.find("/msg") != std::string::npos){
-				using namespace boost;
-				tokenizer<> tok(incoming_message);
-				string message = "";
-				int userid = -1;
-				for(auto beg = tok.begin(); beg != tok.end(); ++beg){
-					if(std::distance(tok.begin(), beg) > 1){
-						message += *beg;
-						message += " ";
-					}
-					if(std::distance(tok.begin(), beg) == 1){
-						if(is_number(*beg))
-							userid = std::stoi(*beg);
-						else{
-							string name = *beg;
-							userid = 0;
-							for(const auto & cli : clients){
-								if(name == cli.name){
-									userid = cli.userid;
-								}
-							}
-						}
-					}
-				}
+				regex reg("\\s+");
+				sregex_token_iterator iter(incoming_message.begin(), incoming_message.end(), reg, -1);
+    			sregex_token_iterator end;
+    			vector<string> list(iter, end);
+    			string message = "";
+    			int userid = -1;
+    			for(size_t i = 0; i < list.size(); ++i){
+    				if(i > 1){
+    					message += list[i];
+    					message += " ";
+    				}
+    				if(i == 1){
+    					if(is_number(list[i])){
+    						userid = std::stoi(list[i]);
+    					}else{
+    						for(const auto & cli : clients){
+    							if(list[i] == cli.name){
+    								userid = cli.userid;
+    							}
+    						}
+    					}
+    				}
+    			}
 
 				message = "[PM] " + string("[") + client.name + "] " + message + "\r\n";
 
