@@ -3,7 +3,7 @@
 *	Copyright 2020
 *
 *	Author: 			Ugur Buyukdurak
-*	Description: 			Simple Chatroom written in C++
+*	Description: 		Simple Chatroom written in C++
 *	Version:			1.0
 *
 */
@@ -150,6 +150,12 @@ void send_to_specific_client(const string & message, int userid){
 	mtx.unlock();
 }
 
+// https://stackoverflow.com/questions/4654636/how-to-determine-if-a-string-is-a-number-with-c?page=1&tab=active#tab-top
+bool is_number(const std::string& s){
+    return !s.empty() && std::find_if(s.begin(), 
+        s.end(), [](unsigned char c) { return !std::isdigit(c); }) == s.end();
+}
+
 // Main function to handle the incoming connections
 void handle_client(Client client){
 	char buffer[BUFFERSIZE] = {'\0'};
@@ -202,7 +208,17 @@ void handle_client(Client client){
 						message += " ";
 					}
 					if(std::distance(tok.begin(), beg) == 1){
-						userid = std::stoi(*beg);
+						if(is_number(*beg))
+							userid = std::stoi(*beg);
+						else{
+							string name = *beg;
+							userid = 0;
+							for(const auto & cli : clients){
+								if(name == cli.name){
+									userid = cli.userid;
+								}
+							}
+						}
 					}
 				}
 
