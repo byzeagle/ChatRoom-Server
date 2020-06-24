@@ -121,7 +121,7 @@ void send_message_to_others(const string & message, const Client & client){
 
 // Send message to the client
 void send_message_to_self(const string & message, const Client client){
-	if (write(client.connfd, message.c_str(), strlen(message.c_str())) < 0) {
+	if(write(client.connfd, message.c_str(), strlen(message.c_str())) < 0) {
         perror("Self message failed");
         exit(EXIT_FAILURE);
     }
@@ -199,7 +199,7 @@ void handle_client(Client client){
 			}
 			else if (incoming_message.find("/msg") != std::string::npos){
 				using namespace boost;
-				tokenizer<>tok(incoming_message);
+				tokenizer<> tok(incoming_message);
 				string message = "";
 				int userid = -1;
 				for(auto beg = tok.begin(); beg != tok.end(); ++beg){
