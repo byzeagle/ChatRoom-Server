@@ -13,3 +13,4 @@ Then run the executable.
 * Name, rename users
 * Private messages
 * Has no encryption
+* Has log mechanism
