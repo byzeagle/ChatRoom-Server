@@ -4,7 +4,7 @@
 *
 *	Author: 			Ugur Buyukdurak
 *	Description: 		Simple Chatroom written in C++
-*	Version:			1.0
+*	Version:			1.1
 *
 */
 
@@ -21,6 +21,9 @@
 #include <atomic>
 #include <algorithm>
 #include <mutex>
+#include <fstream>
+#include <chrono>
+#include <ctime>
 
 #include <boost/tokenizer.hpp>
 
@@ -85,6 +88,21 @@ int initialize_socket(int port){
 }
 
 using namespace std;
+
+inline void __LOG__(const string & log_message){
+	auto time = chrono::system_clock::now();
+	std::time_t end_time = chrono::system_clock::to_time_t(time);
+
+	mtx.lock();
+	ofstream log("server_log.txt", std::ios_base::app);
+	if(!log.is_open()){
+		std::cerr << "Problem opening log file\r\n";
+		exit(EXIT_FAILURE); 
+	}
+	log << log_message << ", " << std::ctime(&end_time);
+	log.close();
+	mtx.unlock();
+}
 
 // Terminate the server
 void __SYSTEM_EXIT__(){
@@ -168,6 +186,8 @@ void handle_client(Client client){
 
 	cout << "<< client accepted referenced by " << client.userid << ", ";
 	cout << "ip: " << ip_address << endl;
+
+	__LOG__("<< client accepted referenced by " + to_string(client.userid) + ", ip: " + string(ip_address));
 
 	broadcast_message("<< " + std::to_string(client.userid) + " has joined in\r\n");
 	send_message_to_self("<< see /help for help\r\n", client);
@@ -256,6 +276,9 @@ void handle_client(Client client){
 
 	cout << "<< quit referenced by " << client.userid << ", ";
 	cout << "ip: " << ip_address << endl;
+
+	__LOG__("<< quit referenced by " + to_string(client.userid) + ", ip: " + string(ip_address));
+
 	client_count--;
 	clients.erase(std::remove(clients.begin(), clients.end(), client), clients.end());
 
