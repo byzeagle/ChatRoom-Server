@@ -184,9 +184,6 @@ void handle_client(Client client){
 	char ip_address[INET_ADDRSTRLEN];
 	inet_ntop(AF_INET, &(client.addr.sin_addr), ip_address, INET_ADDRSTRLEN);
 
-	cout << "<< client accepted referenced by " << client.userid << ", ";
-	cout << "ip: " << ip_address << endl;
-
 	__LOG__("<< client accepted referenced by " + to_string(client.userid) + ", ip: " + string(ip_address));
 
 	broadcast_message("<< " + std::to_string(client.userid) + " has joined in\r\n");
@@ -273,9 +270,6 @@ void handle_client(Client client){
 		}
 		bzero(buffer, sizeof(buffer));
 	}
-
-	cout << "<< quit referenced by " << client.userid << ", ";
-	cout << "ip: " << ip_address << endl;
 
 	__LOG__("<< quit referenced by " + to_string(client.userid) + ", ip: " + string(ip_address));
 
