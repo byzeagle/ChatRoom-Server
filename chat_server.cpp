@@ -8,12 +8,6 @@
 *
 */
 
-// Dneeme afdfdsf
-// sdfa
-// asdfsa 
-// asdfadf 
-// asdfasd
-
 #include <iostream>
 #include <cstdlib>
 #include <cstring>
