@@ -4,7 +4,7 @@
 *
 *	Author: 			Ugur Buyukdurak
 *	Description: 		Simple Chatroom written in C++
-*	Version:			1.1
+*	Version:			1.2
 *
 */
 
