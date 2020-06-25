@@ -27,6 +27,9 @@
 #include <regex>
 #include <signal.h>
 
+#include <openssl/ssl.h>
+#include <openssl/err.h>
+
 constexpr int PORT = 8080;
 constexpr int BACKLOG = 10;
 constexpr int BUFFERSIZE = 2048;
@@ -56,6 +59,49 @@ static int userid = 1;
 static std::vector<Client> clients;
 
 static const char * error_msg = "<< Unkown command\n";
+
+
+// https://wiki.openssl.org/index.php/Simple_TLS_Server
+void init_openssl(){ 
+    SSL_load_error_strings();	
+    OpenSSL_add_ssl_algorithms();
+}
+
+void cleanup_openssl(){
+    EVP_cleanup();
+}
+
+SSL_CTX *create_context(){
+    const SSL_METHOD *method;
+    SSL_CTX *ctx;
+
+    method = SSLv23_server_method();
+
+    ctx = SSL_CTX_new(method);
+    if (!ctx) {
+	perror("Unable to create SSL context");
+	ERR_print_errors_fp(stderr);
+	exit(EXIT_FAILURE);
+    }
+
+    return ctx;
+}
+
+void configure_context(SSL_CTX *ctx){
+    SSL_CTX_set_ecdh_auto(ctx, 1);
+
+    /* Set the key and cert */
+    if (SSL_CTX_use_certificate_file(ctx, "cert.pem", SSL_FILETYPE_PEM) <= 0) {
+        ERR_print_errors_fp(stderr);
+	exit(EXIT_FAILURE);
+    }
+
+    if (SSL_CTX_use_PrivateKey_file(ctx, "key.pem", SSL_FILETYPE_PEM) <= 0 ) {
+        ERR_print_errors_fp(stderr);
+	exit(EXIT_FAILURE);
+    }
+}
+
 
 // Socket Initialization
 int initialize_socket(int port){
@@ -286,6 +332,13 @@ void handle_client(Client client){
 
 int main(void) {
 
+	SSL_CTX *ctx;
+	init_openssl();
+
+	ctx = create_context();
+
+	configure_context(ctx);
+
 	/*	Socket initialization */
 	int sockfd = initialize_socket(PORT);
 	struct sockaddr_in cli_addr;
@@ -297,6 +350,7 @@ int main(void) {
 	__LOG__("<< [SERVER STARTED]");
 
 	while(true){
+		SSL * ssl;
 		socklen_t clilen = sizeof(cli_addr);
 		connfd = accept(sockfd, (struct sockaddr *)&cli_addr, &clilen);
 
@@ -304,6 +358,19 @@ int main(void) {
 			perror("accept");
 			exit(EXIT_FAILURE);
 		}
+
+		const char * reply = "deneme";
+
+		ssl = SSL_new(ctx);
+		SSL_set_fd(ssl, connfd);
+
+		if (SSL_accept(ssl) <= 0) {
+            ERR_print_errors_fp(stderr);
+        }
+        else {
+            SSL_write(ssl, reply, strlen(reply));
+        }
+
 
 		if((client_count + 1) == MAX_CLIENTS) {
 			cout << "<< Max clients reached" << endl;
