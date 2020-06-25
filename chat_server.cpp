@@ -25,6 +25,7 @@
 #include <chrono>
 #include <ctime>
 #include <regex>
+#include <signal.h>
 
 constexpr int PORT = 8080;
 constexpr int BACKLOG = 10;
@@ -193,9 +194,6 @@ void handle_client(Client client){
 		string incoming_message(buffer);
 		string outgoing_message("[" + client.name + "] " + incoming_message);
 
-		if((strlen(buffer) == 0))
-			continue;
-
 		if(incoming_message[0] == '/'){
 			if(incoming_message.find("/quit") != std::string::npos){
 				break;
@@ -220,7 +218,7 @@ void handle_client(Client client){
 				sregex_token_iterator iter(incoming_message.begin(), incoming_message.end(), reg, -1);
     			sregex_token_iterator end;
     			vector<string> list(iter, end);
-    			string message = "";
+    			string message{};
     			int userid = -1;
     			for(size_t i = 0; i < list.size(); ++i){
     				if(i > 1){
