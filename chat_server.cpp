@@ -25,6 +25,7 @@
 #include <chrono>
 #include <ctime>
 #include <regex>
+#include <signal.h>
 
 constexpr int PORT = 8080;
 constexpr int BACKLOG = 10;
@@ -101,6 +102,11 @@ inline void __LOG__(const string & log_message){
 	log << log_message << ", " << std::ctime(&end_time);
 	log.close();
 	mtx.unlock();
+}
+
+void __signal_callback_handler__(int signum){
+	__LOG__("<< An interrupt has been sent to the server");
+	exit(signum);
 }
 
 // Terminate the server
@@ -193,9 +199,6 @@ void handle_client(Client client){
 		string incoming_message(buffer);
 		string outgoing_message("[" + client.name + "] " + incoming_message);
 
-		if((strlen(buffer) == 0))
-			continue;
-
 		if(incoming_message[0] == '/'){
 			if(incoming_message.find("/quit") != std::string::npos){
 				break;
@@ -261,6 +264,7 @@ void handle_client(Client client){
 				send_message_to_self(help, client);
 			}
 			else if(incoming_message.find("/SERVER_EXIT") != std::string::npos){
+				__LOG__("<< __SYSTEM_EXIT__ function has been called by client " + to_string(client.userid));
 				__SYSTEM_EXIT__();
 			}
 			else{
@@ -287,7 +291,10 @@ int main(void) {
 	struct sockaddr_in cli_addr;
 	int connfd;
 
+	signal(SIGINT, __signal_callback_handler__);
+
 	cout << "[Server Started]" << endl;
+	__LOG__("<< [SERVER STARTED]");
 
 	while(true){
 		socklen_t clilen = sizeof(cli_addr);
