@@ -152,11 +152,9 @@ void send_message_to_self(const string & message, const Client client){
 
 // Return list of clients logged in to the system
 void send_list_of_clients(const Client & client){
-	mtx.lock();
 	for(const auto & cli : clients){
 		send_message_to_self("<< [" + std::to_string(cli.userid) + "] " + cli.name + "\r\n", client);
 	}
-	mtx.unlock();
 }
 
 // Send message to a specific client
